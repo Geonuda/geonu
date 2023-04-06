@@ -28,7 +28,7 @@ int main() {
     s.data = malloc(s.size * sizeof(int));
     int i;
     for (i = 1; i <= 30; i++) {
-        int rand_num = rand() % 100;
+        int rand_num = rand() % 99+1;
         if (rand_num % 2 == 0) {
             push(&s, rand_num);
             printf("[%d] push %d\n",i, rand_num);
