@@ -1,83 +1,68 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#define MAX_SIZE_STACK 100
+#include <ctype.h>
 
-#define FALSE 0
-#define TRUE 1
+#define MAX_STACK_SIZE 100
 
-typedef int element;
 typedef struct {
-    element stack[MAX_SIZE_STACK];
     int top;
-}StackType;
+    int data[MAX_STACK_SIZE];
+} Stack;
 
-void init(StackType *s){
-    s->top = -1;
-}
-
-int is_empty(StackType *s){
-    return s->top == -1;
-}
-
-int is_full(StackType *s){
-    return s->top == MAX_SIZE_STACK -1;
-}
-
-void push(StackType *s, element item){
-    if (is_full(s))
+void push(Stack *s, int value) {
+    if (s->top < MAX_STACK_SIZE - 1) {
+        s->top++;
+        s->data[s->top] = value;
+    } else {
+        printf("Stack overflow!");
         exit(1);
-    s->stack[++(s->top)] = item;
-}
-
-element pop(StackType *s){
-    if (is_empty(s))
-        exit(1);
-    return s->stack[(s->top)--];
-}
-
-element peek(StackType *s){
-    if (is_empty(s))
-        exit(1);
-    return s->stack[s->top];
-}
-
-
-int eval(char exp[]){
-    int op1, op2, value, i;
-    int len = (int) strlen(exp);
-    char ch;
-    StackType s;
-    init(&s);
-    for (i=0; i<len; i++) {
-        ch = exp[i];
-        
-
-        if (ch != '+' && ch != '-' && ch != '*' && ch != '/') {
-            value = ch - '0';
-            push(&s, value);
-            continue;
-        }
-        
-        op1 = pop(&s);
-        op2 = pop(&s);
-        
-        switch (ch) {
-            case '+': value = op1 + op2; break;
-            case '-': value = op1 - op2; break;
-            case '*': value = op1 * op2; break;
-            case '/': value = op1 / op2; break;
-            default: exit(1); break;
-        }
-        push(&s, value);
     }
-    return pop(&s);
 }
 
-int main(){
-    int result;
-    char *postfix = "82/3-32*+";
-    result = eval(postfix);
-    printf("후위 표기식 %s의 계산 결과 : %d\n",postfix,result);
+int pop(Stack *s) {
+    if (s->top >= 0) {
+        int value = s->data[s->top];
+        s->top--;
+        return value;
+    } else {
+        printf("Stack underflow!");
+        exit(1);
+    }
+}
+
+int main() {
+    char input[MAX_STACK_SIZE];
+    int i, value, a, b;
+    Stack s = { .top = -1 };
+
+    printf("Enter postfix expression: ");
+    scanf("%s", input);
+
+    for (i = 0; input[i] != '\0'; i++) {
+        if (isdigit(input[i])) {
+            push(&s, input[i] - '0');
+        } else {
+            b = pop(&s);
+            a = pop(&s);
+            switch (input[i]) {
+                case '+':
+                    value = a + b;
+                    break;
+                case '-':
+                    value = a - b;
+                    break;
+                case '*':
+                    value = a * b;
+                    break;
+                case '/':
+                    value = a / b;
+                    break;
+            }
+            push(&s, value);
+        }
+    }
+
+    printf("Result: %d\n", pop(&s));
+
     return 0;
 }
